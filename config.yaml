@@ -1,0 +1,24 @@
+sources:
+  - name: Spamhaus DROP
+    url: https://www.spamhaus.org/drop/drop.txt
+    
+  - name: Spamhaus EDROP
+    url: https://www.spamhaus.org/drop/edrop.txt
+    
+  - name: DShield
+    url: https://www.dshield.org/block.txt
+    
+  - name: Blocklist.de
+    url: https://lists.blocklist.de/lists/all.txt
+    
+  - name: Feodo Tracker
+    url: https://feodotracker.abuse.ch/downloads/ipblocklist.txt
+    
+  - name: FireHOL Level1
+    url: https://raw.githubusercontent.com/ktsaou/blocklist-ipsets/master/firehol_level1.netset
+    
+  - name: Tor Exit Nodes
+    url: https://check.torproject.org/torbulkexitlist
+
+output:
+  file: output/blacklist.txt
