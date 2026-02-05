@@ -60,31 +60,53 @@ def extract_ipv4(line):
 def main():
     config = load_config()
     
-    all_cidrs = set()
+    # Dictionary to store CIDR -> source name mapping
+    cidr_sources = {}
     
     for source in config['sources']:
         print(f"Fetching {source['name']}...")
         try:
             lines = fetch_list(source['url'])
+            count = 0
             for line in lines:
                 ip = extract_ipv4(line)
                 if ip:
-                    all_cidrs.add(ip)
-            print(f"  -> Collected {len([line for line in lines if extract_ipv4(line)])} entries")
+                    # If IP already exists, append source name
+                    if ip in cidr_sources:
+                        cidr_sources[ip] += f", {source['name']}"
+                    else:
+                        cidr_sources[ip] = source['name']
+                    count += 1
+            print(f"  -> Collected {count} entries")
         except Exception as e:
             print(f"  -> Error: {e}")
     
-    print(f"\nTotal unique networks: {len(all_cidrs)}")
+    print(f"\nTotal unique networks: {len(cidr_sources)}")
     
-    sorted_cidrs = sorted(all_cidrs, key=lambda cidr: ipaddress.ip_network(cidr, strict=False))
+    sorted_cidrs = sorted(cidr_sources.keys(), key=lambda cidr: ipaddress.ip_network(cidr, strict=False))
     
     output_file = Path(config['output']['file'])
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        for cidr in sorted_cidrs:
-            f.write(f'{cidr}\n')
     
-    print(f"\nWrote {len(sorted_cidrs)} CIDR entries to {output_file}")
+    list_name = config['output'].get('list_name', 'blacklist')
+    
+    with open(output_file, 'w') as f:
+        # Write header
+        f.write('# MikroTik RouterOS Blacklist Script\n')
+        f.write(f'# Total entries: {len(sorted_cidrs)}\n')
+        f.write('\n')
+        
+        # Remove existing entries from the list
+        f.write(f'/ip firewall address-list remove [find list="{list_name}"]\n')
+        f.write('\n')
+        
+        # Add all CIDR entries with source as comment
+        for cidr in sorted_cidrs:
+            source_comment = cidr_sources[cidr]
+            f.write(f'/ip firewall address-list add list="{list_name}" address={cidr} comment="{source_comment}"\n')
+    
+    print(f"\nWrote {len(sorted_cidrs)} entries to {output_file}")
+    print(f"Address list name: {list_name}")
 
 
 if __name__ == '__main__':

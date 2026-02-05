@@ -19,6 +19,10 @@ sources:
     
   - name: Tor Exit Nodes
     url: https://check.torproject.org/torbulkexitlist
+    
+  - name: AbuseIPDB
+    url: https://github.com/borestad/blocklist-abuseipdb/raw/refs/heads/main/abuseipdb-s100-7d.ipv4
 
 output:
-  file: output/blacklist.txt
+  file: output/blacklist.rsc
+  list_name: blacklist
