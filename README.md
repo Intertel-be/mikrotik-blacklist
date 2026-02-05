@@ -30,15 +30,11 @@ The blacklist aggregates data from:
 - **Tor Exit Nodes** - Tor network exit points
 - **AbuseIPDB** - Community-reported abusive IPs (100% confidence, 7-day)
 
-## Usage
+## Installation
 
-### Download the Latest Blacklist
+### Step 1: Import the Blacklist
 
-The pre-generated blacklist is available in the [`output/`](output/) directory:
-
-- **`output/blacklist.rsc`** - MikroTik RouterOS script (ready to import)
-
-### Import to MikroTik Router
+The pre-generated blacklist is available in the [`output/`](output/) directory: **`output/blacklist.rsc`**
 
 #### Method 1: Web Interface (WinBox/WebFig)
 
@@ -49,7 +45,7 @@ The pre-generated blacklist is available in the [`output/`](output/) directory:
    ```
    /import blacklist.rsc
    ```
-5. The script will clear any existing "blacklist" address list and populate it with the latest entries
+5. The script will create a "blacklist" address list and populate it with entries
 
 #### Method 2: SSH/Terminal
 
@@ -65,15 +61,24 @@ ssh admin@192.168.88.1
 /import blacklist.rsc
 ```
 
-### Apply the Blacklist to Firewall
+### Step 2: Configure Firewall Rule (One-Time Setup)
 
-After importing, you need to create firewall rules to use the blacklist:
+After importing the blacklist, create a firewall rule to block the addresses. **This only needs to be done once:**
 
 ```routeros
 /ip firewall raw add chain=prerouting src-address-list=blacklist action=drop comment="Drop blacklisted IPs"
 ```
 
 **Note**: Using the RAW table with prerouting chain is more efficient than filter rules, as it drops packets before connection tracking. This significantly reduces CPU load when dealing with large blacklists.
+
+## Updating the Blacklist
+
+The blacklist is automatically updated daily. To manually update your router with the latest version:
+
+1. Download the latest `output/blacklist.rsc` from this repository
+2. Import it using either method above
+3. The script will automatically replace all entries in the "blacklist" address list
+4. **No need to recreate the firewall rule** — it continues using the updated address list
 
 ## Configuration
 
