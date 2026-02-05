@@ -37,7 +37,6 @@ The blacklist aggregates data from:
 The pre-generated blacklist is available in the [`output/`](output/) directory:
 
 - **`output/blacklist.rsc`** - MikroTik RouterOS script (ready to import)
-- **`output/blacklist.txt`** - Plain text list of IPs/CIDRs
 
 ### Import to MikroTik Router
 
